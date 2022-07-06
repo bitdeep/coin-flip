@@ -1,0 +1,588 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
+    <meta name="Distribution" content="Global"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/3.0.0-rc.5/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3modal-dynamic-import@1.11.1/dist/index.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/evm-chains@0.2.0/dist/umd/index.min.js"></script>
+    <script type="text/javascript"
+            src="https://unpkg.com/@walletconnect/web3-provider@1.2.1/dist/umd/index.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/fortmatic@2.0.6/dist/fortmatic.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.6.6/ethers.umd.min.js"
+            integrity="sha512-za1vwN3yPBeFCjsPWyMfeHAUByvIaYevZRF81oV/kUv6D9bqZEwppA2aDsHD2vmrIf+aQrhGHt+g5+AG7EDjng=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        const abi = [
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "ticket",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "OnBuy",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "winner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "premium",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "ticket",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "OnTrigger",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "previousOwner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "newOwner",
+                        "type": "address"
+                    }
+                ],
+                "name": "OwnershipTransferred",
+                "type": "event"
+            },
+            {
+                "inputs": [],
+                "name": "adminTrigger",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "total",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "buy",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getTicketsByUser",
+                "outputs": [
+                    {
+                        "internalType": "uint256[]",
+                        "name": "",
+                        "type": "uint256[]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "id",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "lastWinnerAddress",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "lastWinnerPremium",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "lastWinnerTicket",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "lastWinnerTime",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "moreRand",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes32",
+                        "name": "",
+                        "type": "bytes32"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "price",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "renounceOwnership",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    }
+                ],
+                "name": "setFeeRecipient",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "v",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "setPrice",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "v",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "setTriggerMax",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "ticket",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "ticketsByLottery",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "ticketsByUser",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "newOwner",
+                        "type": "address"
+                    }
+                ],
+                "name": "transferOwnership",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "trigger",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "triggerIndex",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "triggerMax",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "userByTicket",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_tokenAddress",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_tokenAmount",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "withdrawTokens",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+        let web3, account, main, contract = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+
+        function fromWei(v) {
+            return web3.utils.fromWei(v);
+        }
+
+        function toWei(v) {
+            return web3.utils.toWei(v);
+        }
+
+        let Web3Modal, web3Modal, provider;
+
+        async function onLoad(callback) {
+            const providerOptions = {};
+            Web3Modal = window.Web3Modal.default;
+            const providers = {
+                metamask: {
+                    id: "injected",
+                    name: "MetaMask",
+                    type: "injected",
+                    check: "isMetaMask"
+                },
+                walletconnect: {
+                    package: WalletConnectProvider, // required
+                    options: {
+                        infuraId: "647c7c604e3a4164a3400530f46e8e34", // Required
+                        qrcodeModalOptions: {
+                            mobileLinks: [
+                                "rainbow",
+                                "metamask",
+                                "argent",
+                                "trust",
+                                "imtoken",
+                                "pillar"
+                            ]
+                        }
+                    }
+                },
+            };
+            web3Modal = new Web3Modal(providers);
+            provider = await web3Modal.connect();
+            provider.on("accountsChanged", (accounts) => {
+                console.log("accountsChanged", accounts);
+                load(provider);
+            });
+            provider.on("chainChanged", (chainId) => {
+                console.log("chainChanged", chainId);
+                load(provider);
+            });
+            provider.on("connect", (info) => {
+                console.log("connect", info);
+                load(provider);
+            });
+            provider.on("disconnect", (error) => {
+                console.log("disconnect", error);
+                alert(error.message);
+            });
+
+            await load(provider);
+            if (callback) {
+                await callback();
+            }
+            // setInterval(pendingReward, 10000);
+        }
+
+        async function accountLoad(provider) {
+            if (provider) {
+                const r = await provider.request({method: 'eth_requestAccounts'});
+                web3 = new Web3(provider);
+                account = r[0];
+                return true;
+            }
+            return false;
+        }
+
+
+        async function load(provider) {
+            const enabled = await accountLoad(provider);
+            if (enabled) {
+                $('#WALLET').html('wallet: ...' + account.substr(account.length - 5));
+                main = new web3.eth.Contract(abi, '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853');
+                await init();
+            } else {
+                alert('no web3 connection');
+            }
+        }
+
+        let price = 0;
+        let id;
+        async function init() {
+            price = (await main.methods.price().call()).toString();
+            id = (await main.methods.id().call()).toString();
+            const triggerIndex = (await main.methods.triggerIndex().call()).toString();
+            const triggerMax = (await main.methods.triggerMax().call()).toString();
+            const ticket = (await main.methods.ticket().call()).toString();
+            const lastWinnerAddress = (await main.methods.lastWinnerAddress().call()).toString();
+            const tickets = await main.methods.getTicketsByUser(id, account).call();
+            $('#price').html(price/1e18);
+            $('#id').html(id);
+            $('#triggerIndex').html(triggerIndex);
+            $('#triggerMax').html(triggerMax);
+            $('#ticket').html(ticket);
+            $('#lastWinnerAddress').html(lastWinnerAddress);
+            $('#getTicketsByUser').html(tickets.join(', '));
+
+        }
+        async function buy() {
+            const amount = $('#amount').val();
+            const cost = amount * price;
+            await main.methods.buy(amount).send({value: cost, from: account});
+            await init();
+        }
+
+    </script>
+
+</head>
+
+<body onload="onLoad()">
+
+Wallet: <span id="WALLET"></span>
+price: <span id="price"></span>
+id: <span id="id"></span>
+triggerIndex: <span id="triggerIndex"></span>
+triggerMax: <span id="triggerMax"></span>
+ticket: <span id="ticket"></span>
+winner: <span id="lastWinnerAddress"></span>
+<br/>
+my tickets: <span id="getTicketsByUser"></span>
+
+<br/><input type="button" value="refresh" onclick="init()"/>
+
+<hr/>
+buy tickets:
+    <input type="number" value="1" id="amount" />
+    <input type="button" value="buy" onclick="buy()"/>
+<hr/>
+
+</body>
+</html>
+
