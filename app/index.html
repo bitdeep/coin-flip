@@ -34,48 +34,11 @@
                     {
                         "indexed": false,
                         "internalType": "uint256",
-                        "name": "id",
-                        "type": "uint256"
-                    },
-                    {
-                        "indexed": false,
-                        "internalType": "uint256",
-                        "name": "ticket",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "OnBuy",
-                "type": "event"
-            },
-            {
-                "anonymous": false,
-                "inputs": [
-                    {
-                        "indexed": false,
-                        "internalType": "address",
-                        "name": "winner",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": false,
-                        "internalType": "uint256",
                         "name": "premium",
                         "type": "uint256"
-                    },
-                    {
-                        "indexed": false,
-                        "internalType": "uint256",
-                        "name": "ticket",
-                        "type": "uint256"
-                    },
-                    {
-                        "indexed": false,
-                        "internalType": "uint256",
-                        "name": "id",
-                        "type": "uint256"
                     }
                 ],
-                "name": "OnTrigger",
+                "name": "OnFlip",
                 "type": "event"
             },
             {
@@ -99,22 +62,56 @@
             },
             {
                 "inputs": [],
-                "name": "adminTrigger",
+                "name": "flip",
                 "outputs": [],
-                "stateMutability": "nonpayable",
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "flipCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
                 "type": "function"
             },
             {
                 "inputs": [
                     {
                         "internalType": "uint256",
-                        "name": "total",
+                        "name": "",
                         "type": "uint256"
                     }
                 ],
-                "name": "buy",
-                "outputs": [],
-                "stateMutability": "payable",
+                "name": "flips",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "datetime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "premium",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
                 "type": "function"
             },
             {
@@ -123,19 +120,36 @@
                         "internalType": "uint256",
                         "name": "id",
                         "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "user",
-                        "type": "address"
                     }
                 ],
-                "name": "getTicketsByUser",
+                "name": "getFlip",
                 "outputs": [
                     {
-                        "internalType": "uint256[]",
+                        "components": [
+                            {
+                                "internalType": "address",
+                                "name": "sender",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "amount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "datetime",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "premium",
+                                "type": "uint256"
+                            }
+                        ],
+                        "internalType": "struct Main.Flip",
                         "name": "",
-                        "type": "uint256[]"
+                        "type": "tuple"
                     }
                 ],
                 "stateMutability": "view",
@@ -143,59 +157,7 @@
             },
             {
                 "inputs": [],
-                "name": "id",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "lastWinnerAddress",
-                "outputs": [
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "lastWinnerPremium",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "lastWinnerTicket",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "lastWinnerTime",
+                "name": "minAmount",
                 "outputs": [
                     {
                         "internalType": "uint256",
@@ -226,12 +188,12 @@
             },
             {
                 "inputs": [],
-                "name": "owner",
+                "name": "multiplier",
                 "outputs": [
                     {
-                        "internalType": "address",
+                        "internalType": "uint256",
                         "name": "",
-                        "type": "address"
+                        "type": "uint256"
                     }
                 ],
                 "stateMutability": "view",
@@ -239,12 +201,25 @@
             },
             {
                 "inputs": [],
-                "name": "price",
+                "name": "odds",
                 "outputs": [
                     {
                         "internalType": "uint256",
                         "name": "",
                         "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
                     }
                 ],
                 "stateMutability": "view",
@@ -278,7 +253,7 @@
                         "type": "uint256"
                     }
                 ],
-                "name": "setPrice",
+                "name": "setMinAmount",
                 "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
@@ -291,75 +266,22 @@
                         "type": "uint256"
                     }
                 ],
-                "name": "setTriggerMax",
+                "name": "setMultiplier",
                 "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
             },
             {
-                "inputs": [],
-                "name": "ticket",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
                 "inputs": [
                     {
                         "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "",
+                        "name": "v",
                         "type": "uint256"
                     }
                 ],
-                "name": "ticketsByLottery",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "ticketsByUser",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
+                "name": "setOdds",
+                "outputs": [],
+                "stateMutability": "nonpayable",
                 "type": "function"
             },
             {
@@ -373,58 +295,6 @@
                 "name": "transferOwnership",
                 "outputs": [],
                 "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "trigger",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "triggerIndex",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "triggerMax",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "userByTicket",
-                "outputs": [
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    }
-                ],
-                "stateMutability": "view",
                 "type": "function"
             },
             {
@@ -446,7 +316,7 @@
                 "type": "function"
             }
         ];
-        let web3, account, main, contract = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+        let web3, account, main, contract = '0x2920746de5B67D0AEE9388A2aF732406611cD752';
 
         function fromWei(v) {
             return web3.utils.fromWei(v);
@@ -525,37 +395,68 @@
         async function load(provider) {
             const enabled = await accountLoad(provider);
             if (enabled) {
-                $('#WALLET').html('wallet: ...' + account.substr(account.length - 5));
-                main = new web3.eth.Contract(abi, '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853');
+                $('#WALLET').html('...'+account.substr(account.length - 4));
+                main = new web3.eth.Contract(abi, contract);
                 await init();
             } else {
                 alert('no web3 connection');
             }
         }
 
-        let price = 0;
-        let id;
+        let minAmount = 0;
         async function init() {
-            price = (await main.methods.price().call()).toString();
-            id = (await main.methods.id().call()).toString();
-            const triggerIndex = (await main.methods.triggerIndex().call()).toString();
-            const triggerMax = (await main.methods.triggerMax().call()).toString();
-            const ticket = (await main.methods.ticket().call()).toString();
-            const lastWinnerAddress = (await main.methods.lastWinnerAddress().call()).toString();
-            const tickets = await main.methods.getTicketsByUser(id, account).call();
-            $('#price').html(price/1e18);
-            $('#id').html(id);
-            $('#triggerIndex').html(triggerIndex);
-            $('#triggerMax').html(triggerMax);
-            $('#ticket').html(ticket);
-            $('#lastWinnerAddress').html(lastWinnerAddress);
-            $('#getTicketsByUser').html(tickets.join(', '));
 
+            const BALANCE = await web3.eth.getBalance(account);
+            $('#BALANCE').html( BALANCE/1e18);
+
+            const C_BALANCE = await web3.eth.getBalance(contract);
+            $('#C_BALANCE').html( C_BALANCE/1e18);
+
+            minAmount = (await main.methods.minAmount().call()).toString();
+            $('#minAmount').html(minAmount/1e18);
+
+            const multiplier = (await main.methods.multiplier().call()).toString();
+            $('#multiplier').html(multiplier);
+
+            const odds = (await main.methods.odds().call()).toString();
+            $('#odds').html('1/'+odds);
+
+            const flipCount = (await main.methods.flipCount().call()).toString();
+            let flips = '';
+            for( let i = flipCount-1; i > 10-flipCount && i>=0 ; i --){
+                const r = await main.methods.flips(i).call();
+                const user = r.sender;
+                const premium = r.premium;
+                const datetime = new Date(r.datetime*1000).toLocaleTimeString("en-US");
+                const s = premium>0?'Win':'Lost';
+                const c = premium>0?'blue':'red';
+                const v = web3.utils.fromWei(premium);
+                flips += '<div style="color:'+c+'">'+user+' '+s+', prize: '+v+' @ '+datetime+'</div>';
+            }
+            $('#flips').html(flips);
         }
-        async function buy() {
-            const amount = $('#amount').val();
-            const cost = amount * price;
-            await main.methods.buy(amount).send({value: cost, from: account});
+
+        async function flip() {
+            $('#status').html('Wait...');
+            const tx = await main.methods.flip().send({value: minAmount, from: account});
+            const events = await web3.eth.getTransactionReceipt(tx.transactionHash);
+            await init();
+            const ev = await web3.eth.abi.decodeLog([
+                    {
+                        type: 'address',
+                        name: 'user'
+                    },{
+                        type: 'uint256',
+                        name: 'premium',
+                    }
+                ],
+                events.logs[0].data,
+                events.logs[0].topics
+            );
+            const premium = ev.premium.toString()
+            const v = web3.utils.fromWei(premium);
+            const status = v>0 ? 'Win '+(v) : 'Lost';
+            $('#status').html(status);
             await init();
         }
 
@@ -565,23 +466,65 @@
 
 <body onload="onLoad()">
 
-Wallet: <span id="WALLET"></span>
-price: <span id="price"></span>
-id: <span id="id"></span>
-triggerIndex: <span id="triggerIndex"></span>
-triggerMax: <span id="triggerMax"></span>
-ticket: <span id="ticket"></span>
-winner: <span id="lastWinnerAddress"></span>
 <br/>
-my tickets: <span id="getTicketsByUser"></span>
+<br/>
+<br/>
+<br/>
+<center><input type="button" value="flip" onclick="flip()"/></center>
+<br/><br/>
+<center>
+    <span id="status">click on flip</span>
+</center>
 
-<br/><input type="button" value="refresh" onclick="init()"/>
+<br/>
+<br/>
 
+<hr><h1>Last Flips</h1>
+<span id="flips">(no flips yet)</span>
+
+<br/>
+<br/>
 <hr/>
-buy tickets:
-    <input type="number" value="1" id="amount" />
-    <input type="button" value="buy" onclick="buy()"/>
-<hr/>
+
+
+
+<fieldset>
+    <legend>Wallet</legend>
+    <span id="WALLET"></span>
+    <hr/><i>Last 4 chars of your wallet.</i>
+</fieldset>
+
+
+<fieldset>
+    <legend>BALANCE</legend>
+    <span id="BALANCE">0</span> BNB
+    <hr/><i>This is your wallet balance now.</i>
+</fieldset>
+
+<fieldset>
+    <legend>Contract Balance</legend>
+    <span id="C_BALANCE">0</span> BNB
+    <hr/><i>This is the contract balance now, this funds is used to pay user that win.</i>
+</fieldset>
+
+<fieldset>
+    <legend>minAmount</legend>
+    <span id="minAmount">0</span> BNB
+    <hr/><i>This is the min amount user must send to contract to flip. Ie: min price flip. User can send any value above this.</i>
+</fieldset>
+
+<fieldset>
+    <legend>multiplier</legend>
+    <span id="multiplier">0</span>
+    <hr/><i>This is the multiplier used to pay user, ie; value sent * multiplier, normally 2 to double amount sent.</i>
+</fieldset>
+
+
+<fieldset>
+    <legend>slots</legend>
+    <span id="odds">0</span>
+    <hr/><i>How many slots to make the bet, user odd is 1/slots. Low slot: more users win, contract get depleted. High slot, less users win.</i>
+</fieldset>
 
 </body>
 </html>

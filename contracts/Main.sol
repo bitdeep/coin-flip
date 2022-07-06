@@ -1,16 +1,26 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract Main is Ownable {
     using SafeERC20 for IERC20;
-    uint public price = 1 ether;
-    uint public id = 1;
-    uint public odds = 10;
+    uint public minAmount = 0.01 ether;
+    uint public multiplier = 2;
+    uint public odds = 2;
     address FEE_RECIPIENT;
+
+    struct Flip {
+        address sender;
+        uint amount;
+        uint datetime;
+        uint premium;
+    }
+
+    mapping(uint => Flip) public flips;
+    uint public flipCount;
     constructor() {
         FEE_RECIPIENT = msg.sender;
     }
@@ -22,37 +32,46 @@ contract Main is Ownable {
         FEE_RECIPIENT = to;
     }
 
-    function setPrice(uint v) public onlyOwner {
-        price = v;
+    function setMinAmount(uint v) public onlyOwner {
+        minAmount = v;
+    }
+    function setMultiplier(uint v) public onlyOwner {
+        multiplier = v;
+    }
+    function setOdds(uint v) public onlyOwner {
+        odds = v;
     }
 
-    event OnFlip(address user, uint id, uint premium);
+    event OnFlip(address user, uint premium);
 
-    function flip(uint id) external payable {
+    function flip() external payable {
 
-        require(msg.value >= price, "invalid amount set");
+        require(msg.value >= minAmount, "invalid amount sent");
 
         uint lastWinnerPremium;
 
-        uint[2] memory sides;
-        sides[0] = 0;
+        uint[] memory sides = new uint[](odds);
         sides[1] = 1;
 
         (uint _previousBlockNumber, bytes32 _previousBlockHash) = moreRand();
-        uint256 _mod = 2;
         uint256 _randomNumber;
         bytes32 _structHash = keccak256(abi.encode(msg.sender, block.difficulty, gasleft(),
-            block.timestamp, _previousBlockNumber, _previousBlockHash));
+            block.timestamp, _previousBlockNumber, _previousBlockHash, flipCount));
         _randomNumber = uint256(_structHash);
+        uint _mod = odds;
         assembly {_randomNumber := mod(_randomNumber, _mod)}
-        uint value = address(this).balance;
-        if( sides[_randomNumber] == 1 && value > 0 ){
+        uint value = msg.value * multiplier;
+        console.log('o=%s rnd=%s side=%s', odds, _randomNumber, sides[_randomNumber]);
+        if( value > address(this).balance )
+            value = address(this).balance;
+        if (sides[_randomNumber] == 1 && value > 0) {
             uint fee = value / 10;
             lastWinnerPremium = value - fee;
             msg.sender.call{value : lastWinnerPremium}("");
             FEE_RECIPIENT.call{value : fee}("");
         }
-        emit OnFlip(msg.sender, id, lastWinnerPremium);
+        flips[flipCount++] = Flip(msg.sender, msg.value, block.timestamp, lastWinnerPremium);
+        emit OnFlip(msg.sender, lastWinnerPremium);
 
     }
 
@@ -63,4 +82,9 @@ contract Main is Ownable {
         _previousBlockHash = bytes32(blockhash(_previousBlockNumber));
         return (_previousBlockNumber, _previousBlockHash);
     }
+
+    function getFlip(uint id) public view returns (Flip memory){
+        return flips[id];
+    }
+
 }

@@ -20,16 +20,19 @@ describe("Main", function () {
         await test(l);
         async function test(user){
             const cost = '1000000000000000000';
-            const tx = await main.connect(user).flip(1, {value: cost});
+            const tx = await main.connect(user).flip({value: cost});
             const events = await tx.wait();
             const ev = events.events[0].args;
-            const id = ev.id.toString()
             const u = ev.user;
             const premium = ev.premium.toString()
             const value = premium/1e18;
-            console.log(u, id, value, value>0 ? 'Win': 'Lost');
+            console.log(u, value, value>0 ? 'Win': 'Lost');
         }
-
+        const flipCount = (await main.flipCount.call()).toString();
+        for( let i = flipCount; i > 10-flipCount && i>=0 ; i --){
+            const flips = await main.flips(i).call();
+            console.log(flips);
+        }
     });
 
 });
